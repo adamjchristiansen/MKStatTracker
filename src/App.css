@@ -1,0 +1,43 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.react-select {
+  width: 300px;
+}
+
+.form {
+  padding-top: 30px;
+  padding-left: 50px;
+  padding-bottom: 30px;
+}
+
+.course {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.place-div {
+  padding: 10px 0px 20px 0px;
+}
