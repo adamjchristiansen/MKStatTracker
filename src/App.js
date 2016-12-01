@@ -53,7 +53,7 @@ const Courses = {
 
 const Places = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
-function GetPlaces() {  
+function GetPlaces() { 
   var p = Places.map((place) => <option key={place}>{place}</option>);
   return (
     p
@@ -119,14 +119,16 @@ class PlayerForm extends Component {
       place: 1,
     };
 
-    this.handleChange = this.handleChange.bind(this);
+    this.handleChange_name = this.handleChange_name.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange_place = this.handleChange_place.bind(this);
   }
 
-  handleChange(event) {
+  handleChange_name(event) {
     if(event) {
       this.setState({name: event.value});
+
+      this.props.onPlayerChange(this.props.formId, event.value);
     } 
     else {
       this.setState({name: ''});
@@ -153,7 +155,7 @@ class PlayerForm extends Component {
             name="player-name"
             value={this.state.name}
             options={PlayerNameOptions}
-            onChange={this.handleChange}
+            onChange={this.handleChange_name}
           />
         </div>
         <div className="place-div">
@@ -181,10 +183,13 @@ class CourseForm extends React.Component {
   
   handleChange(event) {
     if(event) {
-      this.setState({course: event.value});
+      // this.setState({course: event.value});
+      // this.props.onChange(this.state);
+      this.props.onChange(this.props.formId, {course: event.value});
     }
     else {
-      this.setState({course: ''});
+      // this.setState({course: ''});
+      this.props.onChange(this.props.formId, {course: ''});
     }
   }
   
@@ -202,7 +207,8 @@ class CourseForm extends React.Component {
           <h5>Pick the course:</h5>
           <Select
             name="course-name"
-            value={this.state.course}
+            // value={this.state.course}
+            value={this.props.course}
             options={this.courses}
             onChange={this.handleChange}
           />
@@ -216,25 +222,54 @@ class MKForm extends React.Component {
     super();
     this.state = {
       numPlayers: "4",
-      players: [],
+      players: [], //array of objs with name and array of places
       courses: [],
     };
-    
-    this.handleChange = this.handleChange.bind(this);
+
     this.handleSubmit = this.handleSubmit.bind(this);
+
+    this.onCourseChange = this.onCourseChange.bind(this);
+    this.onNumPlayersChange = this.onNumPlayersChange.bind(this);
+    this.onPlayerChange = this.onPlayerChange.bind(this);
+    this.onPlaceChange = this.onPlaceChange.bind(this);
   }
   
-  handleChange(event) {
+  onCourseChange(i, event) {
+    const courses = this.state.courses;
+    courses[i] = event.course;
+    this.setState({courses});
+  }
+
+  onNumPlayersChange(event) {
+    console.log("onNumPlayersChange");
     this.setState({numPlayers: event.target.value});
+  }
+
+  onPlayerChange(i, event) {
+    console.log("onPlayerChange");
+    console.log(i);
+    console.log(event);
+  }
+
+  onPlaceChange(event) {
+    console.log("onPlaceChange");
   }
   
   handleSubmit(event) {
-    alert('You submitted: ' + this.state.value);
+    alert('You submitted: ' + this.state);
     event.preventDefault();
   }
   
   render() {
-    var playerForms = Array(parseInt(this.state.numPlayers)).fill(<PlayerForm />);
+    // var playerForms = Array(parseInt(this.state.numPlayers)).fill(
+    //   <PlayerForm onPlayerChange={this.onPlayerChange} onPlaceChange={this.onPlaceChange} formId={1}/>);
+
+    // var playerForms = FillArrayWithPlayerForms(this.state.numPlayers, this);
+
+    const playerForms = Array(parseInt(this.state.numPlayers));
+    for(var i = 0; i < playerForms.length; i++) {
+      playerForms[i] = <PlayerForm onPlayerChange={this.onPlayerChange} onPlaceChange={this.onPlaceChange} formId={i} />;
+    }
     
     return (      
       <div className="form">
@@ -242,7 +277,7 @@ class MKForm extends React.Component {
           <div className="num-players">
 
             <h4>Number of Players:</h4>               
-            <select value={this.state.numPlayers} onChange={this.handleChange}>
+            <select value={this.state.numPlayers} onChange={this.onNumPlayersChange}>
               <option value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
@@ -254,7 +289,7 @@ class MKForm extends React.Component {
 
           <div className="course">
             <h3>Course 1</h3>
-            <CourseForm />
+            <CourseForm onChange={this.onCourseChange} formId={0} course={this.state.courses[0]} />
             <br></br>
             {playerForms}
           </div>
@@ -263,7 +298,7 @@ class MKForm extends React.Component {
           
           <div className="course">
             <h3>Course 2</h3>
-            <CourseForm />
+            <CourseForm onChange={this.onCourseChange} formId={1} course={this.state.courses[1]}  />
             <br></br>
             {playerForms}
           </div>
@@ -272,7 +307,7 @@ class MKForm extends React.Component {
 
           <div className="course">
             <h3>Course 3</h3>
-            <CourseForm />
+            <CourseForm onChange={this.onCourseChange} formId={2} course={this.state.courses[2]}  />
             <br></br>
             {playerForms}
           </div>
@@ -281,7 +316,7 @@ class MKForm extends React.Component {
 
           <div className="course">
             <h3>Course 4</h3>
-            <CourseForm />
+            <CourseForm onChange={this.onCourseChange} formId={3} course={this.state.courses[3]}  />
             <br></br>
             {playerForms}
           </div>
@@ -292,6 +327,13 @@ class MKForm extends React.Component {
       </div>
     );
   }
+}
+
+function FillArrayWithPlayerForms(n, baseObj) {
+    var arr = Array.apply(null, Array(n));
+    return arr.map(function (x, i) { 
+      return <PlayerForm onPlayerChange={baseObj.onPlayerChange} onPlaceChange={baseObj.onPlaceChange} formId={i}/>
+    });
 }
 
 // ReactDOM.render(
