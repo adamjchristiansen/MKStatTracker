@@ -93,32 +93,19 @@ function GetCourses() {
 class PlayerForm extends Component {
   constructor(props) {
     super(props);
-    // this.state = {
-    //   name: this.props.playerName, //'',
-    //   place: this.props.playerPlace, //1,
-    // };
 
     this.handleChange_name = this.handleChange_name.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange_place = this.handleChange_place.bind(this);
   }
 
   handleChange_name(event) {
     const name = event ? event.value : '';
-    // this.setState({name: name});
     this.props.onPlayerChange(this.props.courseId, this.props.playerId, {name: name, place: this.props.playerPlace});
   }
 
   handleChange_place(event) {
-    // this.setState({place: event.target.value});
-    // this.props.onPlaceChange(this.props.courseId, this.props.playerId, {name: this.state.name, place: event.target.value});
     this.props.onPlayerChange(this.props.courseId, this.props.playerId, {name: this.props.playerName,
       place: parseInt(event.target.value)});
-  }
-
-  handleSubmit(event) {
-    alert('A name was submitted: ' + this.state.value);
-    event.preventDefault();
   }
 
   render() {
@@ -130,7 +117,6 @@ class PlayerForm extends Component {
           <h5>Player Name:</h5>
           <Select
             name="player-name"
-            // value={this.state.name}
             value={this.props.playerName}
             options={PlayerNameOptions}
             onChange={this.handleChange_name}
@@ -151,22 +137,13 @@ class PlayerForm extends Component {
 class CourseForm extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      course: '',
-    };
     
     this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
   }
   
   handleChange(event) {
     const course = event ? event.value : '';
     this.props.onChange(this.props.formId, {course: course});
-  }
-  
-  handleSubmit(event) {
-    alert('You submitted: ' + this.state.value);
-    event.preventDefault();
   }
   
   render() {
@@ -178,7 +155,6 @@ class CourseForm extends React.Component {
           <h5>Pick the course:</h5>
           <Select
             name="course-name"
-            // value={this.state.course}
             value={this.props.course}
             options={this.courses}
             onChange={this.handleChange}
@@ -199,7 +175,7 @@ class MKForm extends React.Component {
     super();
     this.state = {
       numPlayers: "4",
-      players: [], //Array(4).fill(new Player('', Array(4).fill(null))), //array of objs with name and array of places
+      players: [], //array of objs with name and array of places
       courses: [],
     };
 
