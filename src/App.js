@@ -4,27 +4,6 @@ import './App.css';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 
-// class App extends Component {
-//   render() {
-//     return (
-//       <div className="App">
-//         <div className="App-header">
-//           <img src={logo} className="App-logo" alt="logo" />
-//           <h2>Welcome to React</h2>
-//         </div>
-//         <p className="App-intro">
-//           To get started, edit <code>src/App.js</code> and save to reload.
-//         </p>
-//       </div>
-//     );
-//   }
-// }
-
-// export default App;
-
-// var Select = require('react-select');
-
-
 const PlayerNameOptions = [
     { value: 'adam', label: 'Adam' },
     { value: 'jeff', label: 'Jeff' },
@@ -114,10 +93,10 @@ function GetCourses() {
 class PlayerForm extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      name: '',
-      place: 1,
-    };
+    // this.state = {
+    //   name: this.props.playerName, //'',
+    //   place: this.props.playerPlace, //1,
+    // };
 
     this.handleChange_name = this.handleChange_name.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -125,18 +104,16 @@ class PlayerForm extends Component {
   }
 
   handleChange_name(event) {
-    if(event) {
-      this.setState({name: event.value});
-
-      this.props.onPlayerChange(this.props.formId, event.value);
-    } 
-    else {
-      this.setState({name: ''});
-    }
+    const name = event ? event.value : '';
+    // this.setState({name: name});
+    this.props.onPlayerChange(this.props.courseId, this.props.playerId, {name: name, place: this.props.playerPlace});
   }
 
   handleChange_place(event) {
-    this.setState({place: event.target.value});
+    // this.setState({place: event.target.value});
+    // this.props.onPlaceChange(this.props.courseId, this.props.playerId, {name: this.state.name, place: event.target.value});
+    this.props.onPlayerChange(this.props.courseId, this.props.playerId, {name: this.props.playerName,
+      place: parseInt(event.target.value)});
   }
 
   handleSubmit(event) {
@@ -153,7 +130,8 @@ class PlayerForm extends Component {
           <h5>Player Name:</h5>
           <Select
             name="player-name"
-            value={this.state.name}
+            // value={this.state.name}
+            value={this.props.playerName}
             options={PlayerNameOptions}
             onChange={this.handleChange_name}
           />
@@ -182,15 +160,8 @@ class CourseForm extends React.Component {
   }
   
   handleChange(event) {
-    if(event) {
-      // this.setState({course: event.value});
-      // this.props.onChange(this.state);
-      this.props.onChange(this.props.formId, {course: event.value});
-    }
-    else {
-      // this.setState({course: ''});
-      this.props.onChange(this.props.formId, {course: ''});
-    }
+    const course = event ? event.value : '';
+    this.props.onChange(this.props.formId, {course: course});
   }
   
   handleSubmit(event) {
@@ -217,42 +188,59 @@ class CourseForm extends React.Component {
   }
 }
 
+
+function Player(name, places) {
+  this.name = name;
+  this.places = places;
+}
+
 class MKForm extends React.Component {
   constructor() {
     super();
     this.state = {
       numPlayers: "4",
-      players: [], //array of objs with name and array of places
+      players: [], //Array(4).fill(new Player('', Array(4).fill(null))), //array of objs with name and array of places
       courses: [],
     };
+
+    for(var i = 0; i < parseInt(this.state.numPlayers); i++) {
+      this.state.players.push(new Player('', Array(parseInt(this.state.numPlayers)).fill(1)));
+    }
 
     this.handleSubmit = this.handleSubmit.bind(this);
 
     this.onCourseChange = this.onCourseChange.bind(this);
     this.onNumPlayersChange = this.onNumPlayersChange.bind(this);
     this.onPlayerChange = this.onPlayerChange.bind(this);
-    this.onPlaceChange = this.onPlaceChange.bind(this);
   }
   
   onCourseChange(i, event) {
     const courses = this.state.courses;
     courses[i] = event.course;
-    this.setState({courses});
+    this.setState({courses: courses});
+
+    console.log(this.state);
   }
 
   onNumPlayersChange(event) {
-    console.log("onNumPlayersChange");
     this.setState({numPlayers: event.target.value});
+
+    console.log(this.state);
   }
 
-  onPlayerChange(i, event) {
-    console.log("onPlayerChange");
-    console.log(i);
-    console.log(event);
-  }
+  onPlayerChange(courseId, playerId, event) {
+    //update player name
+    const players = this.state.players;
+    players[playerId].name = event.name;
 
-  onPlaceChange(event) {
-    console.log("onPlaceChange");
+    //update player's place
+    const places = players[playerId].places;
+    places[courseId] = event.place;
+    players[playerId].places = places;
+    
+    this.setState({players: players});
+
+    console.log(this.state);
   }
   
   handleSubmit(event) {
@@ -261,16 +249,6 @@ class MKForm extends React.Component {
   }
   
   render() {
-    // var playerForms = Array(parseInt(this.state.numPlayers)).fill(
-    //   <PlayerForm onPlayerChange={this.onPlayerChange} onPlaceChange={this.onPlaceChange} formId={1}/>);
-
-    // var playerForms = FillArrayWithPlayerForms(this.state.numPlayers, this);
-
-    const playerForms = Array(parseInt(this.state.numPlayers));
-    for(var i = 0; i < playerForms.length; i++) {
-      playerForms[i] = <PlayerForm onPlayerChange={this.onPlayerChange} onPlaceChange={this.onPlaceChange} formId={i} />;
-    }
-    
     return (      
       <div className="form">
         <form autoComplete="on" onSubmit={this.handleSubmit}>
@@ -287,39 +265,13 @@ class MKForm extends React.Component {
           
           <hr></hr>
 
-          <div className="course">
-            <h3>Course 1</h3>
-            <CourseForm onChange={this.onCourseChange} formId={0} course={this.state.courses[0]} />
-            <br></br>
-            {playerForms}
-          </div>
-          
+          <CourseBlock i={0} form={this}/>
           <hr></hr>
-          
-          <div className="course">
-            <h3>Course 2</h3>
-            <CourseForm onChange={this.onCourseChange} formId={1} course={this.state.courses[1]}  />
-            <br></br>
-            {playerForms}
-          </div>
-
+          <CourseBlock i={1} form={this}/>
           <hr></hr>
-
-          <div className="course">
-            <h3>Course 3</h3>
-            <CourseForm onChange={this.onCourseChange} formId={2} course={this.state.courses[2]}  />
-            <br></br>
-            {playerForms}
-          </div>
-
+          <CourseBlock i={2} form={this}/>
           <hr></hr>
-
-          <div className="course">
-            <h3>Course 4</h3>
-            <CourseForm onChange={this.onCourseChange} formId={3} course={this.state.courses[3]}  />
-            <br></br>
-            {playerForms}
-          </div>
+          <CourseBlock i={3} form={this}/>
 
           <br></br>
           <input type="submit" value="Submit" />
@@ -329,11 +281,38 @@ class MKForm extends React.Component {
   }
 }
 
-function FillArrayWithPlayerForms(n, baseObj) {
-    var arr = Array.apply(null, Array(n));
-    return arr.map(function (x, i) { 
-      return <PlayerForm onPlayerChange={baseObj.onPlayerChange} onPlaceChange={baseObj.onPlaceChange} formId={i}/>
-    });
+function CourseBlock(props) {
+  return (
+    <div className="course">
+      <h3>Course {props.i+1}</h3>
+      <CourseForm onChange={props.form.onCourseChange} formId={props.i} course={props.form.state.courses[props.i]} />
+      <br></br>
+      <PlayerBlock courseId={props.i} form={props.form}/>
+    </div>
+  );
+}
+
+function PlayerBlock(props) {
+  const playerForms = Array(parseInt(props.form.state.numPlayers));
+  for(var i = 0; i < playerForms.length; i++) {
+    
+    const playerName = props.form.state.players[i].name;
+    const playerPlace = props.form.state.players[i].places[props.courseId] === undefined 
+      ? 1 
+      : props.form.state.players[i].places[props.courseId];
+
+    // console.log("playerName: " + playerName);
+    // console.log("playerPlace: " + playerPlace);
+
+    playerForms[i] = <PlayerForm onPlayerChange={props.form.onPlayerChange} courseId={props.courseId}
+      playerId={i} playerName={playerName} playerPlace={playerPlace} />;
+  }
+
+  return (
+    <div>
+      {playerForms}
+    </div>
+  );
 }
 
 // ReactDOM.render(
