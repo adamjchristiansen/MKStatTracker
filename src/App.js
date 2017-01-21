@@ -31,6 +31,36 @@ const Courses = {
 };
 
 const Places = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+const Points = {1:15, 2:12, 3:10, 4:9, 5:8, 6:7, 7:6, 8:5, 9:4, 10:3, 11:2, 12:1};
+
+function PostCup(raceResults) {
+  return fetch('api/cups', {
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    method: "POST",
+    body: JSON.stringify(raceResults)
+  }).then(checkStatus)
+    .then(parseJSON)
+}
+
+function checkStatus(response) {
+  if (response.status >= 200 && response.status < 300) {
+    return response;
+  } else {
+    const error = new Error(`HTTP Error ${response.statusText}`);
+    error.status = response.statusText;
+    error.response = response;
+    console.log(error); // eslint-disable-line no-console
+    throw error;
+  }
+}
+
+function parseJSON(response) {
+  return response.json();
+}
+
 
 function GetPlaces() { 
   var p = Places.map((place) => <option key={place}>{place}</option>);
@@ -170,6 +200,10 @@ function Player(name, places) {
   this.places = places;
 }
 
+Player.prototype.toString = function playerToString() {
+  return "name: " + this.name + "\nplaces: " + this.places;
+}
+
 class MKForm extends React.Component {
   constructor() {
     super();
@@ -200,7 +234,6 @@ class MKForm extends React.Component {
 
   onNumPlayersChange(event) {
     this.setState({numPlayers: event.target.value});
-
     console.log(this.state);
   }
 
@@ -218,9 +251,38 @@ class MKForm extends React.Component {
 
     console.log(this.state);
   }
+
+  calculateWinner() {
+    var points = [];
+    for(var i = 0; i < this.state.players.length; i++) {
+      points[i] = this.state.players[i].places.reduce((accumulator, currVal, currIndex, theArray) => {
+        return accumulator + Points.currVal;
+      }, 0);
+    }
+
+    
+  }
   
   handleSubmit(event) {
-    alert('You submitted: ' + this.state);
+
+    //TODO: make sure not overwriting state. Maybe add/remove from players in onNumPlayersChange()
+    const toPost = this.state;
+
+    for (var i = 0; i < toPost.players.length; i++) {
+      if(!toPost.players[i].name) {
+        toPost.players.splice(i, toPost.players.length - i);
+      } 
+    };
+
+    alert('You submitted: ' + "players: " + toPost.players + "\ncourses: " +
+      toPost.courses + "\nnumPlayers: " + toPost.numPlayers);
+
+    alert('Json: ' + JSON.stringify(toPost));
+
+    this.calculateWinner();
+
+    PostCup(toPost);
+
     event.preventDefault();
   }
   
