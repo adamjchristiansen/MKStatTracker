@@ -54,9 +54,22 @@ MongoClient.connect(url, function(err, db) {
 	});
 
 	app.post('/api/cups', function(req, res) {
+		console.log("in post");
 		console.log(req.body);
 
 		Insert(db, "cups", req.body);
 		res.sendStatus(200);
 	});
 });
+
+
+
+//get the number of wins for each player
+// db.cups.aggregate([
+//     { $group: { _id: "$winner.name", count: { $sum:1 } } },
+// ])
+
+//get the cups where "adam" was one of the players
+// db.cups.aggregate([
+//     { $match: { "players.name" : "adam" } }
+// ])

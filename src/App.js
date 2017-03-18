@@ -13,6 +13,7 @@ const PlayerNameOptions = [
     { value: 'dave', label: 'Dave' },
     { value: 'rich', label: 'Rich' },
     { value: 'joseph', label: 'Joseph' },
+    {value: 'jordan', label: 'Jordan'},
 ];
 
 const Courses = {
@@ -42,7 +43,7 @@ function PostCup(raceResults) {
     method: "POST",
     body: JSON.stringify(raceResults)
   }).then(checkStatus)
-    .then(parseJSON)
+    //.then(parseJSON)
 }
 
 function checkStatus(response) {
@@ -211,6 +212,7 @@ class MKForm extends React.Component {
       numPlayers: "4",
       players: [], //array of objs with name and array of places
       courses: [],
+      winner: null,
     };
 
     for(var i = 0; i < parseInt(this.state.numPlayers); i++) {
@@ -252,15 +254,33 @@ class MKForm extends React.Component {
     console.log(this.state);
   }
 
+  indexOfMax(arr) {
+    if (arr.length === 0) {
+        return -1;
+    }
+
+    var max = arr[0];
+    var maxIndex = 0;
+
+    for (var i = 1; i < arr.length; i++) {
+        if (arr[i] > max) {
+            maxIndex = i;
+            max = arr[i];
+        }
+    }
+
+    return maxIndex;
+  }
+
   calculateWinner() {
     var points = [];
     for(var i = 0; i < this.state.players.length; i++) {
       points[i] = this.state.players[i].places.reduce((accumulator, currVal, currIndex, theArray) => {
-        return accumulator + Points.currVal;
+        return accumulator + Points[currVal];
       }, 0);
     }
-
     
+    this.state.winner = this.state.players[this.indexOfMax(points)];
   }
   
   handleSubmit(event) {

@@ -1,3 +1,8 @@
+C:\Program Files\MongoDB\Server\3.0\bin> .\mongod.exe --dbpath C:\mongodb\mkstattracker\data\db
+npm start
+node .\server.js
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>
